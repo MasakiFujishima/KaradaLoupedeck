@@ -3,6 +3,7 @@
 VK_MK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
 {
     using System;
+
     public class {{FUNK_NAME}} : PluginDynamicCommand
     {
         public {{FUNK_NAME}}()
@@ -11,14 +12,24 @@ VK_MK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
         }
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
+
+            var ResourcePath = EmbeddedResources.FindFile("{{CATE_NAME}}.png");
+
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
 
             {
-
-                bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage(EmbeddedResources.FindFile("{{CATE_NAME}}.png")));
-                bitmapBuilder.DrawText("{{DIS_NAME}}", color: new BitmapColor({{TEXT_COL}}));
-                return bitmapBuilder.ToImage();
-
+                if (ResourcePath == null)
+                {
+                    bitmapBuilder.FillRectangle(0, 0, 80, 80, new BitmapColor({{FILL_COL}}));
+                    bitmapBuilder.DrawText(ResourcePath, color: new BitmapColor({{TEXT_COL}}));
+                    return bitmapBuilder.ToImage();
+                }
+                else
+                {
+                    bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage(ResourcePath));
+                    bitmapBuilder.DrawText("Image", color: new BitmapColor({{TEXT_COL}}));
+                    return bitmapBuilder.ToImage();
+                }
             }
         }
         protected override void RunCommand(String actionParameter)
@@ -33,6 +44,7 @@ VK_MK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
 VK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
 {
     using System;
+
     public class {{FUNK_NAME}} : PluginDynamicCommand
     {
         public {{FUNK_NAME}}()
@@ -41,14 +53,24 @@ VK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
         }
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
+
+            var ResourcePath = EmbeddedResources.FindFile("{{CATE_NAME}}.png");
+
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
 
             {
-
-                bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage(EmbeddedResources.FindFile("{{CATE_NAME}}.png")));
-                bitmapBuilder.DrawText("{{DIS_NAME}}", color: new BitmapColor({{TEXT_COL}}));
-                return bitmapBuilder.ToImage();
-
+                if (ResourcePath == null)
+                {
+                    bitmapBuilder.FillRectangle(0, 0, 80, 80, new BitmapColor({{FILL_COL}}));
+                    bitmapBuilder.DrawText(ResourcePath, color: new BitmapColor({{TEXT_COL}}));
+                    return bitmapBuilder.ToImage();
+                }
+                else
+                {
+                    bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage(ResourcePath));
+                    bitmapBuilder.DrawText("Image", color: new BitmapColor({{TEXT_COL}}));
+                    return bitmapBuilder.ToImage();
+                }
             }
         }
         protected override void RunCommand(String actionParameter)
