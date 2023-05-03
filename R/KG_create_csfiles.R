@@ -30,12 +30,6 @@ GetData <- read.xlsx(xlsxFile = XLPath, sheet = 1)
 # Open KG_cs_template.R
 source("KG_cs_template.R")
 
-# 処理データの作成
-GetData <- GetData %>%
-  select(Category, FunName, Description, Windows) %>%
-  separate(Windows, c("MK", "VK"), convert = TRUE, sep = "_") %>%
-  mutate(MK = na_if(MK, ""))
-
 # CSファイルの保存先を指定
 # Specify where to save CS files
 setwd(choose.dir())
@@ -52,32 +46,26 @@ TEXT_COL <- GetData$`TextColor(r,g,b)`[i]
 VK <- GetData$VK[i]
 MK <- GetData$MK[i]
 
-if(is.na(MK)){
-  
+if(MK == ""){
+
   if(is.na(VK)){
-    
+
     NULL
-  
+
     }else{
-      
+
       Processing <- VK_vec
       Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
       write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
-      
+
     }
-  
+
 }else{
-  
+
   Processing <- VK_MK_vec
   Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
   write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
-  
-}
 
 }
 
-  
-  
-  
-  
-  
+}

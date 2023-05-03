@@ -23,7 +23,7 @@ VK_MK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
         }
         protected override void RunCommand(String actionParameter)
         {
-            this.Plugin.ClientApplication.SendKeyboardShortcut({{VK}}, {{MK}});
+            this.Plugin.ClientApplication.SendKeyboardShortcut(VirtualKeyCode.{{VK}}, {{MK}});
         }
     }
 }'
@@ -53,7 +53,7 @@ VK_vec <- 'namespace Loupedeck.KG_RStudioPlugin
         }
         protected override void RunCommand(String actionParameter)
         {
-            this.Plugin.ClientApplication.SendKeyboardShortcut({{VK}});
+            this.Plugin.ClientApplication.SendKeyboardShortcut(VirtualKeyCode.{{VK}});
         }
     }
 }'
