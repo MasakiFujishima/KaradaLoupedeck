@@ -100,6 +100,10 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
   # Add ft_color to ResultData
   ResultData[, 2:3] <- ft_color
 
+  # Change colnames
+  colnames(ResultData) <- c("Category", "Icon_Fill_Color", "Icon_Text_Color",
+                            select_OS, "FunName", "MK", "VK")
+
 
   # Remove "No Shortcut" in shortcut commands.
   # Change to match software notation.
