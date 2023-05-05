@@ -1,110 +1,145 @@
-# tcltkパッケージの読み込み
-# Load tcltk package.
-library("tcltk")
+#' keyboard shortcuts excel file tidy
+#'
+#' \code{kg_scef_tidy} This function keyboard shortcuts excel file tidy.
+#' @importFrom tidyxl xlsx_formats xlsx_cells
+#' @importFrom dplyr mutate select
+#' @importFrom magrittr %>%
+#' @importFrom stringr str_replace_all str_extract_all str_c
+#' @importFrom grDevices colorRamp rgb
+#' @importFrom openxlsx read.xlsx write.xlsx
+#' @param path xlsx file path.
+#' @param fillcol fill color column Number.
+#' @param textcol text color column Number.
+#' @param ncol number of columns in the Excel file.
+#' @param select_OS Select Windows or Mac.
+#'
+#' @return an Excel file named "KG_Shortcut" is created in the working folder
+#' @export
+#' @examples
+#' library("tcltk")
+#' XLPath <- paste0(as.character(
+#'   tkgetOpenFile(title = "Select xlsx file",
+#'                 filetypes = '{"xlsx file" {".xlsx"}}',
+#'                 initialfile = c("*.xlsx"))), collapse = " ")
+#' kg_scef_tidy(path = XLPath)
+kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "Windows"){
 
-# openxlsxパッケージがなければインストール
-# Install openxlsx package if it is not already there.
-if(!require("openxlsx", quietly = TRUE)){
-  install.packages("openxlsx");require("openxlsx")
+  # Read.
+  GetData <- openxlsx::read.xlsx(xlsxFile = path, sheet = 1)
+
+  # OS select.
+  if(select_OS == "Windows"){ delete_OS <- "Mac" }
+
+  # Data processing.
+  ResultData <- GetData %>%
+    # Remove /,&,(,) in Description column.
+    dplyr::mutate(Description = stringr::str_replace_all(Description, pattern = "/|&", " ")) %>%
+    dplyr::mutate(Description = stringr::str_replace_all(Description, pattern = "\\(|\\)|-|\\+", "")) %>%
+    dplyr::mutate(FunName = stringr::str_replace_all(Description, pattern = " ", "_")) %>%
+
+    # Lowercase the win/Mac shortcut column.
+    dplyr::mutate(Windows = str_to_lower(Windows)) %>%
+
+    # Create ModifierKey(MK),VirtualKeyCode(VK).
+    dplyr::mutate(Windows = stringr::str_replace_all(Windows, pattern = "ctrl", replacement = "control")) %>%
+    dplyr::mutate(MK = stringr::str_extract_all(Windows, pattern = "shift|alt|control", simplify = FALSE)) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(Windows, pattern = "shift|alt|control", replacement = "")) %>%
+
+    ###Processing ModifierKey(MK)#####
+    # MK key name title notation (first letter capitalized).
+    # Ctrl,Shift,Alt only.
+    dplyr::mutate(MK = map(MK, ~str_to_title(.))) %>%
+
+    # Make the description ModifierKey.XX | ModifierKey.YY.
+    dplyr::mutate(MK = map(MK, ~stringr::str_c("ModifierKey.", ., collapse = " | "))) %>%
+    ########
+
+    ###VirtualKeyCode(VK)の処理/Processing ModifierKey(VK)#####
+    # Remove "+" in shortcut commands.
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\+", replacement = "")) %>%
+
+    # Add in a timely manner according to target software shortcuts.
+    # https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "tab", replacement = "Tab")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "esc", replacement = "Escape")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "enter", replacement = "Return")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "spacebar", replacement = "Space")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\.", replacement = "Period")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "-", replacement = "Minus")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "/", replacement = "Oem2")) %>%
+
+    # VK key name title notation (first letter capitalized)
+    dplyr::mutate(VK = str_to_title(VK)) %>%
+
+    # Add in a timely manner according to target software shortcuts.
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Up", replacement = "ArrowUp")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Down", replacement = "ArrowDown")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Right", replacement = "ArrowRight")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Left", replacement = "ArrowLeft")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Pageup|Pgup", replacement = "PageUp")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Pagedown|Pgdn", replacement = "PageDown")) %>%
+
+    # Numeric-only descriptions to NumPadXX.
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "^[(^\\W\\d)](\\d{0,2})",
+                                                    replacement = stringr::str_c("NumPad", VK))) %>%
+    # Alphabet-only description to KeyXX.
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "[A-Z]{1}$",
+                                                    replacement = stringr::str_c("Key", VK))) %>%
+    # Select data.
+    dplyr::select(-any_of(delete_OS))
+
+  # Return fill and text color in a data frame
+  ft_color <- kg_xlsx_color(path = path, fillcol = 2, textcol = 3, ncol = 6)
+
+  # Add ft_color to ResultData
+  ResultData[, 2:3] <- ft_color
+
+
+  # Remove "No Shortcut" in shortcut commands.
+  # Change to match software notation.
+  ResultData <- ResultData %>%
+    filter(.data[[select_OS]] != "no shortcut")
+
+  # Clleate new xlsx book.
+  newWb <- openxlsx::createWorkbook()
+
+  # Add worksheet.
+  openxlsx::addWorksheet(wb = newWb,
+                         sheetName = "keyboard shortcuts",
+                         gridLines = FALSE, tabColour = "blue",
+                         zoom = 80)
+
+  # Write data.
+  writeData(wb = newWb, sheet = 1, x = ResultData,
+            startRow = 1, startCol = 1)
+
+  # Write fill color.
+  for(i in seq(nrow(ResultData))){
+
+    # Icon_Fill_Color
+    fill_rgb <- unlist(strsplit(ResultData[i, 2], ","))
+    Icon_Fill_Color <- createStyle(fgFill = grDevices::rgb(fill_rgb[1], fill_rgb[2], fill_rgb[3],
+                                                           maxColorValue = 255))
+    # Icon_Text_Color
+    text_rgb <- unlist(strsplit(ResultData[i, 3], ","))
+    Icon_Text_Color <- createStyle(fgFill = grDevices::rgb(text_rgb[1], text_rgb[2], text_rgb[3],
+                                                           maxColorValue = 255))
+
+    # addstyle Icon_Fill_Color
+    addStyle(wb = newWb, sheet = 1,
+             style = Icon_Fill_Color,
+             rows = i + 1, cols = 2)
+
+    # addstyle Icon_Text_Color
+    addStyle(wb = newWb, sheet = 1,
+             style = Icon_Text_Color,
+             rows = i + 1, cols = 3)
+  }
+
+  # Save xlsx file.
+  openxlsx::saveWorkbook(wb = newWb,
+                         file = "KG_Shortcut.xlsx",
+                         overwrite = TRUE)
+
 }
 
-# tidyverseパッケージがなければインストール
-# Install tidyverse package if it is not already there.
-if(!require("tidyverse", quietly = TRUE)){
-  install.packages("tidyverse");require("tidyverse")
-}
-
-# キーボードショートカットのエクセルファイルを読込み: openxlsx::read.xlsxコマンド
-# Open keybord shortcut Excel file: openxlsx::read.xlsx command.
-# xlsxファイルを選択/Select xlsx file.
-XLPath <- paste0(as.character(
-  tkgetOpenFile(title = "xlsxファイルを選択",
-                filetypes = '{"xlsxファイル" {".xlsx"}}',
-                initialfile = c("*.xlsx"))), collapse = " ")
-
-# 読み込み
-# Read.
-GetData <- read.xlsx(xlsxFile = XLPath, sheet = 1)
-
-# データ処理
-# Data processing.
-AnaData <- GetData %>%
-  # Description列に含まれる/,&,(,),-,+を削除
-  # Remove /,&,(,) in Description column.
-  mutate(Description = str_replace_all(Description, pattern = "/|&", " ")) %>%
-  mutate(Description = str_replace_all(Description, pattern = "\\(|\\)|-|\\+", "")) %>%
-  mutate(FunName = str_replace_all(Description, pattern = " ", "_")) %>%
-
-  # win/Macのショートカット列を小文字にする
-  # Lowercase the win/Mac shortcut column.
-  mutate(Windows = str_to_lower(Windows)) %>%
-
-  # ショートカットコマンド内の"No Shortcut"を削除/Remove "No Shortcut" in shortcut commands.
-  # ソフトウェアの表記に合わせて変更する/Change to match software notation.
-  filter(Windows != "no shortcut") %>%
-
-  # ModifierKey(MK),VirtualKeyCode(VK)を作成
-  # Create ModifierKey(MK),VirtualKeyCode(VK).
-
-  mutate(Windows = str_replace_all(Windows, pattern = "ctrl", replacement = "control")) %>%
-  mutate(MK = str_extract_all(Windows, pattern = "shift|alt|control", simplify = FALSE)) %>%
-  mutate(VK = str_replace_all(Windows, pattern = "shift|alt|control", replacement = "")) %>%
-
-  ###ModifierKey(MK)の処理/Processing ModifierKey(MK)#####
-  # MKのキー名タイトル表記(先頭を大文字)にする
-  # MK key name title notation (first letter capitalized).
-  # Ctrl,Shift,Altのみ/Ctrl,Shift,Alt only.
-  mutate(MK = map(MK, ~str_to_title(.))) %>%
-
-  # 記述をModifierKey.XX | ModifierKey.YYにする
-  # Make the description ModifierKey.XX | ModifierKey.YY.
-  mutate(MK = map(MK, ~str_c("ModifierKey.", ., collapse = " | "))) %>%
-  ########
-
-  ###VirtualKeyCode(VK)の処理/Processing ModifierKey(VK)#####
-  # ショートカットコマンド内の"+"を削除/Remove "+" in shortcut commands.
-  mutate(VK = str_replace_all(VK, pattern = "\\+", replacement = "")) %>%
-
-  # 対象となるソフトウェアのショートカットに合わせて適時追加
-  # Add in a timely manner according to target software shortcuts.
-  # replacementはVirtual-Key Codesを参照:
-  # https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-  mutate(VK = str_replace_all(VK, pattern = "tab", replacement = "Tab")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "esc", replacement = "Escape")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "enter", replacement = "Return")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "spacebar", replacement = "Space")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "\\.", replacement = "Period")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "-", replacement = "Minus")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "/", replacement = "Oem2")) %>%
-
-  # VKのキー名タイトル表記(先頭を大文字)にする
-  # VK key name title notation (first letter capitalized)
-  mutate(VK = str_to_title(VK)) %>%
-
-  # 対象となるソフトウェアのショートカットに合わせて適時追加
-  # Add in a timely manner according to target software shortcuts.
-  mutate(VK = str_replace_all(VK, pattern = "Up", replacement = "ArrowUp")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "Down", replacement = "ArrowDown")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "Right", replacement = "ArrowRight")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "Left", replacement = "ArrowLeft")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "Pageup|Pgup", replacement = "PageUp")) %>%
-  mutate(VK = str_replace_all(VK, pattern = "Pagedown|Pgdn", replacement = "PageDown")) %>%
-
-  # 数値のみの記述をNumPadXXにする
-  # Numeric-only descriptions to NumPadXX.
-  mutate(VK = str_replace_all(VK, pattern = "^[(^\\W\\d)](\\d{0,2})",
-                              replacement = str_c("NumPad", VK))) %>%
-  # 英字のみの記述をKeyXXにする
-  # Alphabet-only description to KeyXX.
-  mutate(VK = str_replace_all(VK, pattern = "[A-Z]{1}$",
-                              replacement = str_c("Key", VK))) %>%
-
-  # 必要データを選択
-  # Select data.
-  select(-Mac)
-
-# エクセルで保存
-# Save xlsx file.
-write.xlsx(x = AnaData,
-           file = "KG_Shortcut.xlsx",
-           overwrite = TRUE)

@@ -1,71 +1,62 @@
-# tcltkパッケージの読み込み
-# Load tcltk package.
-library("tcltk")
+#' Create C# files from "KG_Shortcut.xlsx"
+#'
+#' \code{kg_csfiles_create} This function create C# files from "KG_Shortcut.xlsx".
+#' @importFrom glue glue
+#' @importFrom openxlsx read.xlsx write.xlsx
+#' @param path xlsx file path.
+#' @param savepath Specify where to save CS files.
+#'
+#' @return C# Source Files
+#' @export
+#' @examples
+#' library("tcltk")
+#' XLPath <- paste0(as.character(
+#'   tkgetOpenFile(title = "Select xlsx file",
+#'                 filetypes = '{"xlsx file" {".xlsx"}}',
+#'                 initialfile = c("*.xlsx"))), collapse = " ")
+#' kg_csfiles_create(path, savepath = choose.dir())
+kg_csfiles_create <- function(path, savepath = choose.dir()){
 
-# openxlsxパッケージがなければインストール
-# Install openxlsx package if it is not already there.
-if(!require("openxlsx", quietly = TRUE)){
-  install.packages("openxlsx");require("openxlsx")
-}
+  # Read.
+  GetData <- read.xlsx(xlsxFile = path, sheet = 1)
 
-# tidyverseパッケージがなければインストール
-# Install tidyverse package if it is not already there.
-if(!require("tidyverse", quietly = TRUE)){
-  install.packages("tidyverse");require("tidyverse")
-}
+  # Open inst/cs_template
+  system.file("/inst", package = "KGLoupedeck")
 
-# ExsampleDataの"KG_Shortcut.xlsx"の読込み: openxlsx::read.xlsxコマンド
-# Open ExsampleData folder "KG_Shortcut.xlsx": openxlsx::read.xlsx command.
-# xlsxファイルを選択/Select xlsx file.
-XLPath <- paste0(as.character(
-  tkgetOpenFile(title = "xlsxファイルを選択",
-                filetypes = '{"xlsxファイル" {".xlsx"}}',
-                initialfile = c("*.xlsx"))), collapse = " ")
+  # Specify where to save CS files
+  setwd(savepath)
+  #setwd("../ExsampleData/CS")
 
-# 読み込み
-# Read.
-GetData <- read.xlsx(xlsxFile = XLPath, sheet = 1)
+  # Data processing and save cs files.
+  for(i in seq(nrow(GetData))){
 
-# KG_cs_template.Rを読み込み
-# Open KG_cs_template.R
-source("KG_cs_template.R")
+    FUNK_NAME <- GetData$FunName[i]
+    DIS_NAME <- GetData$Description[i]
+    CATE_NAME <- GetData$Category[i]
+    TEXT_COL <- GetData$`TextColor(r,g,b)`[i]
+    VK <- GetData$VK[i]
+    MK <- GetData$MK[i]
 
-# CSファイルの保存先を指定
-# Specify where to save CS files
-setwd(choose.dir())
-#setwd("../ExsampleData/CS")
+    if(MK == ""){
 
-# データ処理とCSファイルの保存
-# Data processing and save cs files.
-for(i in seq(nrow(GetData))){
+      if(is.na(VK)){
 
-FUNK_NAME <- GetData$FunName[i]
-DIS_NAME <- GetData$Description[i]
-CATE_NAME <- GetData$Category[i]
-TEXT_COL <- GetData$`TextColor(r,g,b)`[i]
-VK <- GetData$VK[i]
-MK <- GetData$MK[i]
+        NULL
 
-if(MK == ""){
+      }else{
 
-  if(is.na(VK)){
+        Processing <- VK_vec
+        Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
+        write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
 
-    NULL
+      }
 
     }else{
 
-      Processing <- VK_vec
+      Processing <- VK_MK_vec
       Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
       write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
 
     }
-
-}else{
-
-  Processing <- VK_MK_vec
-  Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
-  write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
-
-}
-
+  }
 }
