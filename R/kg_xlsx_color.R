@@ -21,7 +21,7 @@ kg_xlsx_color <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6){
   get_cells <- tidyxl::xlsx_cells(xlsxFile, include_blank_cells = TRUE)
 
   get_colordatas <- get_formats$local$fill$patternFill$fgColor$rgb[get_cells$local_format_id] %>%
-    sapply(function(x) stringr::str_replace_all(pattern = "FF",
+    sapply(function(x) stringr::str_replace_all(pattern = "^FF",
                                                 replacement = "#",
                                                 as.character(x))) %>%
     matrix(ncol = ncol, byrow = TRUE)

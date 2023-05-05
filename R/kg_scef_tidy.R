@@ -25,7 +25,15 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
 
   # OS select.
-  if(select_OS == "Windows"){ delete_OS <- "Mac" }
+  if(select_OS == "Windows"){
+
+    delete_OS <- "Mac"
+
+  }else{
+
+    delete_OS <- "Windows"
+
+    }
 
   # Data processing.
   ResultData <- GetData %>%
