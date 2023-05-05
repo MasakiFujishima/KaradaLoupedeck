@@ -24,7 +24,7 @@ kg_xlsx_color <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6){
     sapply(function(x) stringr::str_replace_all(pattern = "FF",
                                                 replacement = "#",
                                                 as.character(x))) %>%
-    matrix(ncol, byrow = TRUE)
+    matrix(ncol = ncol, byrow = TRUE)
 
   result_data <- get_colordatas[-1, c(fillcol, textcol)] %>%
     sapply(function(x) grDevices::colorRamp(colors = x, space = "rgb")(1)) %>%
