@@ -2,13 +2,12 @@
 #'
 #' \code{kg_scef_tidy} This function keyboard shortcuts excel file tidy.
 #' @importFrom tidyxl xlsx_formats xlsx_cells
-#' @importFrom dplyr mutate select filter
+#' @importFrom dplyr mutate select filter all_of any_of
 #' @importFrom magrittr %>%
 #' @importFrom stringr str_replace_all str_extract_all str_c str_to_lower str_to_title
 #' @importFrom grDevices colorRamp rgb
 #' @importFrom openxlsx read.xlsx write.xlsx writeData createStyle addStyle
 #' @importFrom purrr map
-#' @importFrom tidyselect any_of
 #' @param xlsxFile An xlsx file.
 #' @param fillcol fill color column Number.
 #' @param textcol text color column Number.
@@ -102,13 +101,15 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
 
   # Change colnames
   colnames(ResultData) <- c("Category", "Icon_Fill_Color", "Icon_Text_Color",
-                            select_OS, "FunName", "MK", "VK")
+                            "Description" , select_OS, "FunName", "MK", "VK")
 
 
   # Remove "No Shortcut" in shortcut commands.
   # Change to match software notation.
   ResultData <- ResultData %>%
-    dplyr::filter(.data[[select_OS]] != "no shortcut")
+    dplyr::filter(.data[[select_OS]] != "no shortcut") %>%
+    dplyr::select(all_of(c("Category", "Icon_Fill_Color", "Icon_Text_Color",
+                           "Description" , "FunName", select_OS, "MK", "VK")))
 
   # Clleate new xlsx book.
   newWb <- openxlsx::createWorkbook()
