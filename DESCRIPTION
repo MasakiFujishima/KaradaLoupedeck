@@ -3,7 +3,7 @@ Type: Package
 Title: Help Create Loupeddeck Shortcut Plug-ins
 Description: This package is for the creation of Loupedeck shortcut plug-ins
     that can be used with Loupedeck.
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person("Masaki", "Fujishima", role = c("aut", "cre"),
            email = "info@karada-good.net")
