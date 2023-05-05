@@ -12,7 +12,7 @@ You can install the development version of karadaLoupedeck from [GitHub](https:/
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MasakiFujishima/KG_Loupedeck_Create_Shortcut")
+devtools::install_github("MasakiFujishima/karadaLoupedeck")
 ```
 
 ## Example
