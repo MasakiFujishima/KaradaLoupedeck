@@ -1,5 +1,5 @@
 
-# karadaLoupedeck
+# KaradaLoupedeck
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -12,7 +12,7 @@ You can install the development version of karadaLoupedeck from [GitHub](https:/
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MasakiFujishima/karadaLoupedeck")
+devtools::install_github("MasakiFujishima/KaradaLoupedeck")
 ```
 
 ## Example
