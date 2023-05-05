@@ -17,6 +17,7 @@ Imports:
     magrittr,
     openxlsx,
     purrr,
+    readr,
     stringr,
     tidyselect,
     tidyxl,

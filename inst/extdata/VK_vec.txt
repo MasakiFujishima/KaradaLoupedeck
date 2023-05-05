@@ -19,7 +19,7 @@ namespace Loupedeck.KG_RStudioPlugin
                 if (ResourcePath == null)
                 {
                     bitmapBuilder.FillRectangle(0, 0, 80, 80, new BitmapColor({{FILL_COL}}));
-                    bitmapBuilder.DrawText(ResourcePath, color: new BitmapColor({{TEXT_COL}}));
+                    bitmapBuilder.DrawText({{CATE_NAME}}, color: new BitmapColor({{TEXT_COL}}));
                     return bitmapBuilder.ToImage();
                 }
                 else

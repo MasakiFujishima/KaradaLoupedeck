@@ -4,6 +4,7 @@
 #' @importFrom glue glue
 #' @importFrom openxlsx read.xlsx write.xlsx
 #' @importFrom utils choose.dir
+#' @importFrom readr read_file
 #' @param xlsxFile An xlsx file.
 #' @param savepath Specify where to save CS files.
 #'
@@ -17,8 +18,8 @@ kg_csfiles_create <- function(xlsxFile, savepath){
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
 
   # Open extdata/docs/cs_template
-  VK_MK_vec <- readLines(system.file("extdata", "VK_MK_vec.txt", package = "karadaLoupedeck"))
-  VK_vec <- readLines(system.file("extdata", "VK_vec.txt", package = "karadaLoupedeck"))
+  VK_MK_vec <- readr::read_file(system.file("extdata", "VK_MK_vec.txt", package = "karadaLoupedeck"))
+  VK_vec <- readr::read_file(system.file("extdata", "VK_vec.txt", package = "karadaLoupedeck"))
 
   # Specify where to save CS files
   setwd(savepath)
@@ -30,7 +31,8 @@ kg_csfiles_create <- function(xlsxFile, savepath){
     FUNK_NAME <- GetData$FunName[i]
     DIS_NAME <- GetData$Description[i]
     CATE_NAME <- GetData$Category[i]
-    TEXT_COL <- GetData$`TextColor(r,g,b)`[i]
+    TEXT_COL <- GetData$Icon_Text_Color[i]
+    FILL_COL <- GetData$Icon_Fill_Color[i]
     VK <- GetData$VK[i]
     MK <- GetData$MK[i]
 
