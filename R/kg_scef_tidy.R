@@ -2,12 +2,14 @@
 #'
 #' \code{kg_scef_tidy} This function keyboard shortcuts excel file tidy.
 #' @importFrom tidyxl xlsx_formats xlsx_cells
-#' @importFrom dplyr mutate select
+#' @importFrom dplyr mutate select filter
 #' @importFrom magrittr %>%
-#' @importFrom stringr str_replace_all str_extract_all str_c
+#' @importFrom stringr str_replace_all str_extract_all str_c str_to_lower str_to_title
 #' @importFrom grDevices colorRamp rgb
-#' @importFrom openxlsx read.xlsx write.xlsx
-#' @param path xlsx file path.
+#' @importFrom openxlsx read.xlsx write.xlsx writeData createStyle addStyle
+#' @importFrom purrr map
+#' @importFrom tidyselect any_of
+#' @param xlsxFile An xlsx file.
 #' @param fillcol fill color column Number.
 #' @param textcol text color column Number.
 #' @param ncol number of columns in the Excel file.
@@ -16,16 +18,11 @@
 #' @return an Excel file named "KG_Shortcut" is created in the working folder
 #' @export
 #' @examples
-#' library("tcltk")
-#' XLPath <- paste0(as.character(
-#'   tkgetOpenFile(title = "Select xlsx file",
-#'                 filetypes = '{"xlsx file" {".xlsx"}}',
-#'                 initialfile = c("*.xlsx"))), collapse = " ")
-#' kg_scef_tidy(path = XLPath)
-kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "Windows"){
+#' kg_scef_tidy(xlsxFile)
+kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS = "Windows"){
 
   # Read.
-  GetData <- openxlsx::read.xlsx(xlsxFile = path, sheet = 1)
+  GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
 
   # OS select.
   if(select_OS == "Windows"){ delete_OS <- "Mac" }
@@ -38,7 +35,7 @@ kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "
     dplyr::mutate(FunName = stringr::str_replace_all(Description, pattern = " ", "_")) %>%
 
     # Lowercase the win/Mac shortcut column.
-    dplyr::mutate(Windows = str_to_lower(Windows)) %>%
+    dplyr::mutate(Windows = stringr::str_to_lower(Windows)) %>%
 
     # Create ModifierKey(MK),VirtualKeyCode(VK).
     dplyr::mutate(Windows = stringr::str_replace_all(Windows, pattern = "ctrl", replacement = "control")) %>%
@@ -48,10 +45,10 @@ kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "
     ###Processing ModifierKey(MK)#####
     # MK key name title notation (first letter capitalized).
     # Ctrl,Shift,Alt only.
-    dplyr::mutate(MK = map(MK, ~str_to_title(.))) %>%
+    dplyr::mutate(MK = purrr::map(MK, ~str_to_title(.))) %>%
 
     # Make the description ModifierKey.XX | ModifierKey.YY.
-    dplyr::mutate(MK = map(MK, ~stringr::str_c("ModifierKey.", ., collapse = " | "))) %>%
+    dplyr::mutate(MK = purrr::map(MK, ~stringr::str_c("ModifierKey.", ., collapse = " | "))) %>%
     ########
 
     ###VirtualKeyCode(VK)の処理/Processing ModifierKey(VK)#####
@@ -69,7 +66,7 @@ kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "/", replacement = "Oem2")) %>%
 
     # VK key name title notation (first letter capitalized)
-    dplyr::mutate(VK = str_to_title(VK)) %>%
+    dplyr::mutate(VK = stringr::str_to_title(VK)) %>%
 
     # Add in a timely manner according to target software shortcuts.
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "Up", replacement = "ArrowUp")) %>%
@@ -86,10 +83,10 @@ kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "[A-Z]{1}$",
                                                     replacement = stringr::str_c("Key", VK))) %>%
     # Select data.
-    dplyr::select(-any_of(delete_OS))
+    dplyr::select(-tidyselect::any_of(delete_OS))
 
   # Return fill and text color in a data frame
-  ft_color <- kg_xlsx_color(path = path, fillcol = 2, textcol = 3, ncol = 6)
+  ft_color <- kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 6)
 
   # Add ft_color to ResultData
   ResultData[, 2:3] <- ft_color
@@ -98,7 +95,7 @@ kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "
   # Remove "No Shortcut" in shortcut commands.
   # Change to match software notation.
   ResultData <- ResultData %>%
-    filter(.data[[select_OS]] != "no shortcut")
+    dplyr::filter(.data[[select_OS]] != "no shortcut")
 
   # Clleate new xlsx book.
   newWb <- openxlsx::createWorkbook()
@@ -110,20 +107,24 @@ kg_scef_tidy <- function(path, fillcol = 2, textcol = 3, ncol = 6, select_OS = "
                          zoom = 80)
 
   # Write data.
-  writeData(wb = newWb, sheet = 1, x = ResultData,
-            startRow = 1, startCol = 1)
+  openxlsx::writeData(wb = newWb, sheet = 1, x = ResultData,
+                      startRow = 1, startCol = 1)
 
   # Write fill color.
   for(i in seq(nrow(ResultData))){
 
     # Icon_Fill_Color
     fill_rgb <- unlist(strsplit(ResultData[i, 2], ","))
-    Icon_Fill_Color <- createStyle(fgFill = grDevices::rgb(fill_rgb[1], fill_rgb[2], fill_rgb[3],
-                                                           maxColorValue = 255))
+    Icon_Fill_Color <- openxlsx::createStyle(fgFill = grDevices::rgb(fill_rgb[1],
+                                                                     fill_rgb[2],
+                                                                     fill_rgb[3],
+                                                                     maxColorValue = 255))
     # Icon_Text_Color
     text_rgb <- unlist(strsplit(ResultData[i, 3], ","))
-    Icon_Text_Color <- createStyle(fgFill = grDevices::rgb(text_rgb[1], text_rgb[2], text_rgb[3],
-                                                           maxColorValue = 255))
+    Icon_Text_Color <- openxlsx::createStyle(fgFill = grDevices::rgb(text_rgb[1],
+                                                                     text_rgb[2],
+                                                                     text_rgb[3],
+                                                                     maxColorValue = 255))
 
     # addstyle Icon_Fill_Color
     addStyle(wb = newWb, sheet = 1,

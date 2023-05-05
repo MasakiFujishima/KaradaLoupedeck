@@ -1,11 +1,27 @@
-Package: KGLoupedeck
+Package: karadaLoupedeck
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Help Create Loupeddeck Shortcut Plug-ins
+Description: This package is for the creation of Loupedeck shortcut plug-ins
+    that can be used with Loupedeck.
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R:
+    person("Masaki", "Fujishima", role = c("aut", "cre"),
+           email = "info@karada-good.net")
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+Imports: 
+    dplyr,
+    glue,
+    grDevices,
+    magrittr,
+    openxlsx,
+    purrr,
+    stringr,
+    tidyselect,
+    tidyxl,
+    utils
+RoxygenNote: 7.2.3
+Suggests: 
+    testthat (>= 3.0.0)
+URL: https://github.com/MasakiFujishima/KG_Loupedeck_Create_Shortcut

@@ -3,25 +3,21 @@
 #' \code{kg_csfiles_create} This function create C# files from "KG_Shortcut.xlsx".
 #' @importFrom glue glue
 #' @importFrom openxlsx read.xlsx write.xlsx
-#' @param path xlsx file path.
+#' @importFrom utils choose.dir
+#' @param xlsxFile An xlsx file.
 #' @param savepath Specify where to save CS files.
 #'
 #' @return C# Source Files
 #' @export
 #' @examples
-#' library("tcltk")
-#' XLPath <- paste0(as.character(
-#'   tkgetOpenFile(title = "Select xlsx file",
-#'                 filetypes = '{"xlsx file" {".xlsx"}}',
-#'                 initialfile = c("*.xlsx"))), collapse = " ")
-#' kg_csfiles_create(path, savepath = choose.dir())
-kg_csfiles_create <- function(path, savepath = choose.dir()){
+#' kg_csfiles_create(xlsxFile = "../ExsampleData/KG_Shortcut.xlsx", savepath = getwd())
+kg_csfiles_create <- function(xlsxFile, savepath){
 
   # Read.
-  GetData <- read.xlsx(xlsxFile = path, sheet = 1)
+  GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
 
-  # Open inst/cs_template
-  system.file("/inst", package = "KGLoupedeck")
+  # Open extdata/docs/cs_template
+  system.file("extdata/docs", package = "karadaLoupedeck")
 
   # Specify where to save CS files
   setwd(savepath)

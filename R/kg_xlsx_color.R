@@ -6,7 +6,7 @@
 #' @importFrom grDevices colorRamp
 #' @importFrom magrittr %>%
 #' @importFrom stringr str_replace_all str_c
-#' @param path xlsx file path.
+#' @param xlsxFile An xlsx file.
 #' @param fillcol fill color column Number.
 #' @param textcol text color column Number.
 #' @param ncol number of columns in the Excel file.
@@ -14,16 +14,11 @@
 #' @return Return fill and text color in a data frame
 #' @export
 #' @examples
-#' library("tcltk")
-#' XLPath <- paste0(as.character(
-#'   tkgetOpenFile(title = "Select xlsx file",
-#'                 filetypes = '{"xlsx file" {".xlsx"}}',
-#'                 initialfile = c("*.xlsx"))), collapse = " ")
-#' kg_xlsx_color(path = XLPath, fillcol = 2, textcol = 3, ncol = 6)
-kg_xlsx_color <- function(path, fillcol = 2, textcol = 3, ncol = 6){
+#' kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 6)
+kg_xlsx_color <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6){
 
-  get_formats <- tidyxl::xlsx_formats(path)
-  get_cells <- tidyxl::xlsx_cells(path, include_blank_cells = TRUE)
+  get_formats <- tidyxl::xlsx_formats(xlsxFile)
+  get_cells <- tidyxl::xlsx_cells(xlsxFile, include_blank_cells = TRUE)
 
   get_colordatas <- get_formats$local$fill$patternFill$fgColor$rgb[get_cells$local_format_id] %>%
     sapply(function(x) stringr::str_replace_all(pattern = "FF",
