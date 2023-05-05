@@ -40,7 +40,7 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     # Remove /,&,(,) in Description column.
     dplyr::mutate(Description = stringr::str_replace_all(Description, pattern = "/|&", " ")) %>%
     dplyr::mutate(Description = stringr::str_replace_all(Description, pattern = "\\(|\\)|-|\\+", "")) %>%
-    dplyr::mutate(FunName = stringr::str_replace_all(Description, pattern = " ", "_")) %>%
+    dplyr::mutate(FunName = stringr::str_replace_all(Description, pattern = " ", "")) %>%
 
     # Lowercase the win/Mac shortcut column.
     dplyr::mutate(Windows = stringr::str_to_lower(Windows)) %>%
