@@ -17,7 +17,8 @@ kg_csfiles_create <- function(xlsxFile, savepath){
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
 
   # Open extdata/docs/cs_template
-  system.file("extdata/docs", package = "karadaLoupedeck")
+  system.file("extdata", "VK_MK_vec.txt", package = "karadaLoupedeck")
+  system.file("extdata", "VK_vec.txt", package = "karadaLoupedeck")
 
   # Specify where to save CS files
   setwd(savepath)
