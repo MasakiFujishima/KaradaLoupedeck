@@ -1,4 +1,4 @@
-namespace Loupedeck.{{NAME_SPACE}}
+namespace Loupedeck.{{NAME_SPACE}}Plugin
 {
     using System;
 
