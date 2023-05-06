@@ -6,16 +6,20 @@
 #' @importFrom utils choose.dir
 #' @importFrom readr read_file
 #' @param xlsxFile An xlsx file.
+#' @param lpname Loupedeck plugin name.
 #' @param savepath Specify where to save CS files.
 #'
 #' @return C# Source Files
 #' @export
 #' @examples
 #' kg_csfiles_create(xlsxFile = "../ExsampleData/KG_Shortcut.xlsx", savepath = getwd())
-kg_csfiles_create <- function(xlsxFile, savepath){
+kg_csfiles_create <- function(xlsxFile, lpname, savepath){
 
   # Read.
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
+
+  # Set cs namespace.
+  NAME_SPACE <- lpname
 
   # Open extdata/docs/cs_template
   VK_MK_vec <- readr::read_file(system.file("extdata", "VK_MK_vec.txt", package = "karadaLoupedeck"))
