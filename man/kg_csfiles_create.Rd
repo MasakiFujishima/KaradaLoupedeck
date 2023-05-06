@@ -4,10 +4,12 @@
 \alias{kg_csfiles_create}
 \title{Create C# files from "KG_Shortcut.xlsx"}
 \usage{
-kg_csfiles_create(xlsxFile, savepath)
+kg_csfiles_create(xlsxFile, lpname, savepath)
 }
 \arguments{
 \item{xlsxFile}{An xlsx file.}
+
+\item{lpname}{Loupedeck plugin name.}
 
 \item{savepath}{Specify where to save CS files.}
 }
