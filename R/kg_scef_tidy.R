@@ -76,8 +76,9 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = ",", replacement = "Comma")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\]", replacement = "Oem6")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\[", replacement = "Oem4")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numplus", replacement = "Plus")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numplus", replacement = "Add")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numminus", replacement = "Minus")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "del", replacement = "Delete")) %>%
 
     # VK key name title notation (first letter capitalized)
     dplyr::mutate(VK = stringr::str_to_title(VK)) %>%
