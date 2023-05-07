@@ -60,7 +60,6 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     ########
 
     ###VirtualKeyCode(VK)の処理/Processing ModifierKey(VK)#####
-    # Remove "+" in shortcut commands.
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\+", replacement = "")) %>%
 
     # Add in a timely manner according to target software shortcuts.
@@ -72,6 +71,13 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\.", replacement = "Period")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "-", replacement = "Minus")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "/", replacement = "Oem2")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\^", replacement = "Oem3")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\@", replacement = "Oem3")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = ",", replacement = "Comma")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\]", replacement = "Oem6")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\[", replacement = "Oem4")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numplus", replacement = "Plus")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numminus", replacement = "Minus")) %>%
 
     # VK key name title notation (first letter capitalized)
     dplyr::mutate(VK = stringr::str_to_title(VK)) %>%
