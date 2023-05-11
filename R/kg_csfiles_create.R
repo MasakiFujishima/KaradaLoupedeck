@@ -40,7 +40,7 @@ kg_csfiles_create <- function(xlsxFile, lpname, savepath){
     VK <- GetData$VK[i]
     MK <- GetData$MK[i]
 
-    if(MK == ""){
+    if(is.na(MK)){
 
       if(is.na(VK)){
 
@@ -50,7 +50,7 @@ kg_csfiles_create <- function(xlsxFile, lpname, savepath){
 
         Processing <- VK_vec
         Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
-        write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
+        write(Fun_GetData, file = paste0(FUNK_NAME, ".cs"))
 
       }
 
@@ -58,7 +58,7 @@ kg_csfiles_create <- function(xlsxFile, lpname, savepath){
 
       Processing <- VK_MK_vec
       Fun_GetData <- glue::glue(Processing, .open = "{{", .close = "}}")
-      write(Fun_GetData, file = paste0(DIS_NAME, ".cs"))
+      write(Fun_GetData, file = paste0(FUNK_NAME, ".cs"))
 
     }
   }

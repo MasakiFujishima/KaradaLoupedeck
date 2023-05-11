@@ -32,7 +32,7 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
 
     delete_OS <- "Windows"
 
-    }
+  }
 
   # Data processing.
   ResultData <- GetData %>%
@@ -45,22 +45,25 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     # Lowercase the win/Mac shortcut column.
     dplyr::mutate(Windows = stringr::str_to_lower(Windows)) %>%
 
+    #dplyr::mutate(Windows = stringr::str_replace_all(Windows, pattern = "\\!", replacement = "shift+1")) %>%
+
     # Create ModifierKey(MK),VirtualKeyCode(VK).
     dplyr::mutate(Windows = stringr::str_replace_all(Windows, pattern = "ctrl", replacement = "control")) %>%
     dplyr::mutate(MK = stringr::str_extract_all(Windows, pattern = "shift|alt|control", simplify = FALSE)) %>%
     dplyr::mutate(VK = stringr::str_replace_all(Windows, pattern = "shift|alt|control", replacement = "")) %>%
 
     ###Processing ModifierKey(MK)#####
-    # MK key name title notation (first letter capitalized).
-    # Ctrl,Shift,Alt only.
-    dplyr::mutate(MK = purrr::map(MK, ~str_to_title(.))) %>%
+  # MK key name title notation (first letter capitalized).
+  # Ctrl,Shift,Alt only.
+  dplyr::mutate(MK = purrr::map(MK, ~str_to_title(.))) %>%
 
     # Make the description ModifierKey.XX | ModifierKey.YY.
     dplyr::mutate(MK = purrr::map(MK, ~stringr::str_c("ModifierKey.", ., collapse = " | "))) %>%
     ########
 
-    ###VirtualKeyCode(VK)の処理/Processing ModifierKey(VK)#####
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\+", replacement = "")) %>%
+  ###VirtualKeyCode(VK)の処理/Processing ModifierKey(VK)#####
+  dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\+", replacement = "")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "(\\s|　)", "")) %>%
 
     # Add in a timely manner according to target software shortcuts.
     # https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
@@ -68,17 +71,17 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "esc", replacement = "Escape")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "enter", replacement = "Return")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "spacebar", replacement = "Space")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "spacebar", replacement = "Space")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\.", replacement = "Period")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "-", replacement = "Minus")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "/", replacement = "Oem2")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\^", replacement = "Oem3")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\@", replacement = "Oem3")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "/|\\?", replacement = "Oem2")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\^|\\@|\\`", replacement = "Oem3")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = ",", replacement = "Comma")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\]", replacement = "Oem6")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\[", replacement = "Oem4")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\=", replacement = "OemPlus")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\<|\\>", replacement = "Oem102")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numplus", replacement = "Add")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numminus", replacement = "Minus")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "del", replacement = "Delete")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "numminus|-", replacement = "Minus")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "del$|delete$", replacement = "Delete")) %>%
 
     # VK key name title notation (first letter capitalized)
     dplyr::mutate(VK = stringr::str_to_title(VK)) %>%
@@ -93,10 +96,10 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
 
     # Numeric-only descriptions to NumPadXX.
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "^[(^\\W\\d)](\\d{0,2})",
-                                                    replacement = stringr::str_c("NumPad", VK))) %>%
+                                                replacement = stringr::str_c("NumPad", VK))) %>%
     # Alphabet-only description to KeyXX.
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "[A-Z]{1}$",
-                                                    replacement = stringr::str_c("Key", VK))) %>%
+                                                replacement = stringr::str_c("Key", VK))) %>%
     # Select data.
     dplyr::select(-tidyselect::any_of(delete_OS))
 
