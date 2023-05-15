@@ -36,3 +36,5 @@ namespace Loupedeck.{{NAME_SPACE}}Plugin
         }
     }
 }
+
+
