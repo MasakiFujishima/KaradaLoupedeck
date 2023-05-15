@@ -73,8 +73,10 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "spacebar", replacement = "Space")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\.", replacement = "Period")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "/|\\?", replacement = "Oem2")) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\^|\\@|\\`", replacement = "Oem3")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\^|\\`", replacement = "Oem3")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\@", replacement = "Key2")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = ",", replacement = "Comma")) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\[", replacement = "Oem4")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\]", replacement = "Oem6")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\=", replacement = "OemPlus")) %>%
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "\\<|\\>", replacement = "Oem102")) %>%
