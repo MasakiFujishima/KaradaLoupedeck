@@ -18,7 +18,7 @@
 #' @export
 #' @examples
 #' kg_scef_tidy(xlsxFile)
-kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut = "Shortcut"){
+kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 5, Shortcut = "Shortcut"){
 
   # Read.
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
@@ -101,7 +101,7 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut 
     #dplyr::select(-tidyselect::any_of(delete_OS))
 
   # Return fill and text color in a data frame
-  ft_color <- kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 6)
+  ft_color <- kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 5)
 
   # Add ft_color to ResultData
   ResultData[, 2:3] <- ft_color
@@ -115,12 +115,12 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut 
   # Remove "No Shortcut" in shortcut commands.
   # Change to match software notation.
   ResultData <- ResultData %>%
-    dplyr::filter(.data[[select_OS]] != "no shortcut") %>%
+    dplyr::filter(.data[["Shortcut"]] != "no shortcut") %>%
     # replace an empty string with an NA value
     dplyr::mutate(MK = unlist(MK)) %>%
     dplyr::mutate_at("MK", ~dplyr::na_if(., "")) %>%
     dplyr::select(all_of(c("Category", "Icon_Fill_Color", "Icon_Text_Color",
-                           "Description" , "FunName", select_OS, "MK", "VK")))
+                           "Description" , "FunName", "Shortcut", "MK", "VK")))
 
   # Clleate new xlsx book.
   newWb <- openxlsx::createWorkbook()
@@ -152,14 +152,14 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut 
                                                                      maxColorValue = 255))
 
     # addstyle Icon_Fill_Color
-    addStyle(wb = newWb, sheet = 1,
-             style = Icon_Fill_Color,
-             rows = i + 1, cols = 2)
+    openxlsx::addStyle(wb = newWb, sheet = 1,
+                       style = Icon_Fill_Color,
+                       rows = i + 1, cols = 2)
 
     # addstyle Icon_Text_Color
-    addStyle(wb = newWb, sheet = 1,
-             style = Icon_Text_Color,
-             rows = i + 1, cols = 3)
+    openxlsx::addStyle(wb = newWb, sheet = 1,
+                       style = Icon_Text_Color,
+                       rows = i + 1, cols = 3)
   }
 
   # Save xlsx file.

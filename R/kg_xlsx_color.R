@@ -14,8 +14,8 @@
 #' @return Return fill and text color in a data frame
 #' @export
 #' @examples
-#' kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 6)
-kg_xlsx_color <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6){
+#' kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 5)
+kg_xlsx_color <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 5){
 
   get_formats <- tidyxl::xlsx_formats(xlsxFile)
   get_cells <- tidyxl::xlsx_cells(xlsxFile, include_blank_cells = TRUE)
