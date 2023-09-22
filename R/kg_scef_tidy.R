@@ -18,7 +18,7 @@
 #' @export
 #' @examples
 #' kg_scef_tidy(xlsxFile)
-kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut = "Windows"){
+kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut = "Shortcut"){
 
   # Read.
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
@@ -96,9 +96,9 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut 
                                                 replacement = stringr::str_c("NumPad", VK))) %>%
     # Alphabet-only description to KeyXX.
     dplyr::mutate(VK = stringr::str_replace_all(VK, pattern = "[A-Z]{1}$",
-                                                replacement = stringr::str_c("Key", VK))) %>%
+                                                replacement = stringr::str_c("Key", VK))) #%>%
     # Select data.
-    dplyr::select(-tidyselect::any_of(delete_OS))
+    #dplyr::select(-tidyselect::any_of(delete_OS))
 
   # Return fill and text color in a data frame
   ft_color <- kg_xlsx_color(xlsxFile, fillcol = 2, textcol = 3, ncol = 6)
