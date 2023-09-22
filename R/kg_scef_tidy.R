@@ -18,21 +18,17 @@
 #' @export
 #' @examples
 #' kg_scef_tidy(xlsxFile)
-kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS = "Windows"){
+kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, Shortcut = "Windows"){
 
   # Read.
   GetData <- openxlsx::read.xlsx(xlsxFile, sheet = 1)
 
   # OS select.
-  if(select_OS == "Windows"){
-
-    delete_OS <- "Mac"
-
-  }else{
-
-    delete_OS <- "Windows"
-
-  }
+  # if(select_OS == "Windows"){
+  #  delete_OS <- "Mac"
+  # }else{
+  #  delete_OS <- "Windows"
+  #}
 
   # Data processing.
   ResultData <- GetData %>%
@@ -42,15 +38,15 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
     dplyr::mutate(Description = stringr::str_to_title(Description)) %>%
     dplyr::mutate(FunName = stringr::str_replace_all(Description, pattern = " ", "")) %>%
 
-    # Lowercase the win/Mac shortcut column.
-    dplyr::mutate(Windows = stringr::str_to_lower(Windows)) %>%
+    # Lowercase the shortcut column.
+    dplyr::mutate(Shortcut = stringr::str_to_lower(Shortcut)) %>%
 
-    dplyr::mutate(Windows = stringr::str_replace_all(Windows, pattern = "\\!", replacement = "shift+1")) %>%
+    dplyr::mutate(Shortcut = stringr::str_replace_all(Shortcut, pattern = "\\!", replacement = "shift+1")) %>%
 
     # Create ModifierKey(MK),VirtualKeyCode(VK).
-    dplyr::mutate(Windows = stringr::str_replace_all(Windows, pattern = "ctrl", replacement = "control")) %>%
-    dplyr::mutate(MK = stringr::str_extract_all(Windows, pattern = "shift|alt|control", simplify = FALSE)) %>%
-    dplyr::mutate(VK = stringr::str_replace_all(Windows, pattern = "shift|alt|control", replacement = "")) %>%
+    dplyr::mutate(Shortcut = stringr::str_replace_all(Shortcut, pattern = "ctrl", replacement = "control")) %>%
+    dplyr::mutate(MK = stringr::str_extract_all(Shortcut, pattern = "shift|alt|control", simplify = FALSE)) %>%
+    dplyr::mutate(VK = stringr::str_replace_all(Shortcut, pattern = "shift|alt|control", replacement = "")) %>%
 
     ###Processing ModifierKey(MK)#####
     # MK key name title notation (first letter capitalized).
@@ -111,9 +107,10 @@ kg_scef_tidy <- function(xlsxFile, fillcol = 2, textcol = 3, ncol = 6, select_OS
   ResultData[, 2:3] <- ft_color
 
   # Change colnames
+  #colnames(ResultData) <- c("Category", "Icon_Fill_Color", "Icon_Text_Color",
+  #                          "Description" , select_OS, "FunName", "MK", "VK")
   colnames(ResultData) <- c("Category", "Icon_Fill_Color", "Icon_Text_Color",
-                            "Description" , select_OS, "FunName", "MK", "VK")
-
+                            "Description" , "Shortcut", "FunName", "MK", "VK")
 
   # Remove "No Shortcut" in shortcut commands.
   # Change to match software notation.
